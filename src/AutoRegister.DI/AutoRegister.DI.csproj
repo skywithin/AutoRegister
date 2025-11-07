@@ -15,8 +15,8 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>dependency-injection;di;automatic;attributes;auto-register;service-registration;clean-architecture;aspnetcore;dotnet</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
     </PropertyGroup>
 
     <ItemGroup>
