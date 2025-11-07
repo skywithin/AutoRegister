@@ -17,4 +17,6 @@ internal static class ConsoleHelper
         Console.WriteLine(message);
         Console.ForegroundColor = originalColor;
     }
+
+    internal static void NewLine() => Console.WriteLine();
 }
