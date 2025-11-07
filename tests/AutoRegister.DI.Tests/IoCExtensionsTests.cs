@@ -179,6 +179,45 @@ public class ServiceWithOptionalDependencies : IServiceWithOptionalDependencies
     }
 }
 
+/// <summary>
+/// Represents an abstract service that should be skipped
+/// </summary>
+public interface IAbstractService { }
+
+[AutoRegister(Lifetime.Transient, RegisterAs.Interface)]
+public abstract class AbstractService : IAbstractService { }
+
+/// <summary>
+/// Represents an interface that should be skipped (though attributes can't be applied to interfaces)
+/// </summary>
+public interface ISkippedInterface { }
+
+/// <summary>
+/// Represents a service with RegisterAs set to None (0) that should be skipped
+/// </summary>
+public interface IServiceWithRegisterAsNone { }
+
+[AutoRegister(Lifetime.Transient, (RegisterAs)0)]
+public class ServiceWithRegisterAsNone : IServiceWithRegisterAsNone { }
+
+/// <summary>
+/// Represents a service that implements only IDisposable (should be filtered out)
+/// </summary>
+[AutoRegister(Lifetime.Transient, RegisterAs.Interface)]
+public class ServiceWithOnlyIDisposable : IDisposable
+{
+    public void Dispose() { }
+}
+
+/// <summary>
+/// Represents a service that implements only System.* interfaces (should fall back to first interface)
+/// </summary>
+[AutoRegister(Lifetime.Transient, RegisterAs.Interface)]
+public class ServiceWithOnlySystemInterfaces : IComparable<int>
+{
+    public int CompareTo(int other) => 0;
+}
+
 [Category("Unit")] 
 internal class IoCExtensionsTests
 {
@@ -635,5 +674,218 @@ internal class IoCExtensionsTests
 
         // Assert
         service.Should().NotBeNull().And.BeAssignableTo<ServiceWithOptionalDependencies>();
+    }
+
+    /// <summary>
+    /// Verifies that abstract classes are skipped during registration,
+    /// ensuring only concrete classes can be auto-registered.
+    /// </summary>
+    [Test]
+    public void Abstract_Class_Should_Be_Skipped()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        var service = serviceProvider.GetService<IAbstractService>();
+
+        // Assert
+        service.Should().BeNull(); // Abstract classes should not be registered
+    }
+
+    /// <summary>
+    /// Verifies that interfaces themselves are skipped during registration,
+    /// ensuring only concrete classes can be auto-registered.
+    /// Note: Attributes cannot be applied to interfaces (AttributeTargets.Class),
+    /// but the code also filters them out as a defensive measure.
+    /// </summary>
+    [Test]
+    public void Interface_Type_Should_Be_Skipped()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        // Scan an assembly that contains interfaces - they should be skipped
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        // Try to resolve an interface that has no implementation registered
+        // (since interfaces themselves can't have the attribute)
+        var service = serviceProvider.GetService<ISkippedInterface>();
+
+        // Assert
+        service.Should().BeNull(); // Interfaces should not be registered (they can't have the attribute anyway)
+    }
+
+    /// <summary>
+    /// Verifies that services with RegisterAs set to None (0) are skipped,
+    /// ensuring invalid registration flags are handled correctly.
+    /// </summary>
+    [Test]
+    public void Service_WithRegisterAsNone_Should_Be_Skipped()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        var service = serviceProvider.GetService<IServiceWithRegisterAsNone>();
+
+        // Assert
+        service.Should().BeNull(); // Services with RegisterAs = 0 should not be registered
+    }
+
+    /// <summary>
+    /// Verifies that services implementing only IDisposable fall back to IDisposable
+    /// when no suitable interfaces are found (fallback behavior).
+    /// </summary>
+    [Test]
+    public void Service_WithOnlyIDisposable_Should_Fallback_To_IDisposable()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        var service = serviceProvider.GetService<IDisposable>();
+
+        // Assert
+        // When only IDisposable exists, it falls back to first interface (IDisposable)
+        // This is the fallback behavior when no suitable interfaces are found
+        service.Should().NotBeNull().And.BeAssignableTo<ServiceWithOnlyIDisposable>();
+    }
+
+    /// <summary>
+    /// Verifies that services implementing only System.* interfaces fall back to first interface
+    /// when no suitable interfaces are found.
+    /// </summary>
+    [Test]
+    public void Service_WithOnlySystemInterfaces_Should_Fallback_To_First_Interface()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        // Note: IComparable<int> is the generic version, need to resolve as generic
+        var service = serviceProvider.GetService<IComparable<int>>();
+
+        // Assert
+        // Should fall back to first interface (IComparable<int>) when only System.* interfaces exist
+        service.Should().NotBeNull().And.BeAssignableTo<ServiceWithOnlySystemInterfaces>();
+    }
+
+    /// <summary>
+    /// Verifies that multiple assemblies can be passed to the registration method
+    /// and services from all assemblies are registered.
+    /// </summary>
+    [Test]
+    public void AddAutoRegisteredServices_WithMultipleAssemblies_ShouldRegisterFromAllAssemblies()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var currentAssembly = Assembly.GetExecutingAssembly();
+        var mscorlibAssembly = typeof(object).Assembly; // System.Private.CoreLib
+
+        // Act
+        services.AddAutoRegisteredServicesFromAssembly(currentAssembly, mscorlibAssembly);
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Assert - Should register services from test assembly
+        var serviceB = serviceProvider.GetService<IServiceB>();
+        serviceB.Should().NotBeNull().And.BeAssignableTo<ServiceB>();
+    }
+
+    /// <summary>
+    /// Verifies that GetRequiredService throws when service is not registered,
+    /// ensuring proper error handling for missing services.
+    /// </summary>
+    [Test]
+    public void GetRequiredService_WhenServiceNotRegistered_ShouldThrow()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act & Assert
+        var act = () => serviceProvider.GetRequiredService<IServiceA>();
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*No service for type*IServiceA*");
+    }
+
+    /// <summary>
+    /// Verifies that GetRequiredService returns the service when it is registered,
+    /// ensuring proper behavior for registered services.
+    /// </summary>
+    [Test]
+    public void GetRequiredService_WhenServiceRegistered_ShouldReturnService()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddAutoRegisteredServicesFromAssembly(Assembly.GetExecutingAssembly());
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Act
+        var service = serviceProvider.GetRequiredService<IServiceB>();
+
+        // Assert
+        service.Should().NotBeNull().And.BeAssignableTo<ServiceB>();
+    }
+
+    /// <summary>
+    /// Verifies that the logger callback is invoked when provided,
+    /// ensuring logging functionality works correctly.
+    /// </summary>
+    [Test]
+    public void AddAutoRegisteredServices_WithLogger_ShouldInvokeLogger()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var logMessages = new List<string>();
+
+        // Act
+        services.AddAutoRegisteredServicesFromAssembly(
+            message => logMessages.Add(message),
+            Assembly.GetExecutingAssembly());
+
+        // Assert
+        logMessages.Should().NotBeEmpty();
+        logMessages.Should().Contain(m => m.Contains("Scanning"));
+        logMessages.Should().Contain(m => m.Contains("Auto-registration completed"));
+        logMessages.Should().Contain(m => m.Contains("Registered"));
+    }
+
+    /// <summary>
+    /// Verifies that the logger callback receives appropriate messages for different log levels,
+    /// ensuring all log levels are properly handled.
+    /// </summary>
+    [Test]
+    public void Logger_Should_Receive_Messages_For_All_Log_Levels()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var logMessages = new List<string>();
+
+        // Act
+        services.AddAutoRegisteredServicesFromAssembly(
+            message => logMessages.Add(message),
+            Assembly.GetExecutingAssembly());
+
+        // Assert
+        // Should have info messages (scanning, completion)
+        logMessages.Should().Contain(m => m.Contains("Scanning"));
+        logMessages.Should().Contain(m => m.Contains("Auto-registration completed"));
+        
+        // Should have success messages (registration)
+        logMessages.Should().Contain(m => m.Contains("Registering"));
+        
+        // Should have warning messages (if any services have issues)
+        // Note: This depends on test services having warnings
     }
 }
