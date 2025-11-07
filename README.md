@@ -1,5 +1,8 @@
 # AutoRegister.DI
 
+[![NuGet](https://img.shields.io/nuget/v/Skywithin.AutoRegister.svg)](https://www.nuget.org/packages/Skywithin.AutoRegister/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A dependency injection automation library for .NET that simplifies service registration using attributes. This library automatically discovers and registers services decorated with the `[AutoRegister]` attribute, supporting various lifetimes and registration strategies.
 
 ## Features
