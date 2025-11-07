@@ -1,0 +1,17 @@
+﻿using Skywithin.AutoRegister.DI;
+using Demo.Domain.Bootstrap;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Demo.Application.Bootstrap;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddDemoApplication(this IServiceCollection services)
+    {
+        services
+            .AddDemoDomain()
+            .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
+
+        return services;
+    }
+}
