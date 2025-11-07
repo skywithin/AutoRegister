@@ -53,9 +53,90 @@ public class UserService : IDisposable, IUserService, IAsyncDisposable
 }
 ```
 
-## Documentation
+## Architectural Considerations and Trade-offs
 
-For comprehensive documentation, examples, API reference, and best practices, please visit the [GitHub repository](https://github.com/Skywithin/AutoRegister).
+### SOLID Principles and Single Responsibility
+
+Some developers have concerns that using the `[AutoRegister]` attribute violates SOLID principles, particularly the Single Responsibility Principle (SRP). However, it's important to understand the design philosophy:
+
+**The attribute is a marker, not the registration logic itself.**
+
+- The `[AutoRegister]` attribute serves as a **declarative marker** that indicates a class should be registered
+- The **actual registration logic** is separate and handled by the `AddAutoRegisteredServicesFromAssembly` method
+- The class itself doesn't contain registration logic—it only declares its registration intent
+- This separation maintains SRP: the class has one responsibility (its business logic), and the registration system has another (service registration)
+
+```csharp
+// The attribute is just metadata - it doesn't execute registration logic
+[AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
+public class UserService : IUserService
+{
+    // This class has one responsibility: user business logic
+    // The registration happens elsewhere, separately
+}
+```
+
+### Domain and Infrastructure Coupling
+
+**Acknowledged concern:** Using the `[AutoRegister]` attribute does create a dependency between your domain/application code and the dependency injection infrastructure.
+
+**The trade-off:**
+- **Convenience**: Automatic registration reduces boilerplate and maintenance overhead
+- **Coupling**: Your domain/application code becomes aware of the DI infrastructure
+- **Impact**: This is generally acceptable for small to medium-sized projects where the convenience benefits outweigh the architectural purity concerns
+
+**When this matters:**
+- In **large enterprise applications** with strict architectural boundaries, this coupling might be a concern
+- If your organization has strict policies about domain layer independence, you may want to consider manual registration
+- For projects where architectural purity is paramount, explicit registration in composition roots may be preferred
+
+### Convenience vs. Strict Architecture
+
+AutoRegister.DI is designed with a **pragmatic approach** that prioritizes developer productivity and maintainability:
+
+**Works well for:**
+- Small to medium-sized projects
+- Projects where rapid development is important
+- Teams that value reduced boilerplate
+- Applications where the convenience benefits outweigh strict architectural boundaries
+
+**Consider alternatives for:**
+- Large enterprise applications with strict architectural requirements
+- Projects where domain layer must remain completely infrastructure-agnostic
+- Situations where explicit control over registration is required
+- Teams that prefer explicit, visible registration code
+
+### Making an Informed Decision
+
+**Use AutoRegister.DI when:**
+- You want to reduce boilerplate and maintenance overhead
+- Your project size is small to medium
+- The convenience benefits outweigh architectural purity concerns
+- Your team is comfortable with the attribute-based approach
+
+**Consider manual registration when:**
+- You have strict architectural boundaries that must be maintained
+- Your domain layer must remain completely infrastructure-agnostic
+- You need explicit, visible control over all registrations
+- Your project is large enough that the coupling concerns outweigh convenience benefits
+
+**Hybrid approach:**
+You can also use a hybrid approach—use `[AutoRegister]` for most services, but manually register services that have special requirements or need explicit control:
+
+```csharp
+// Use AutoRegister for standard services
+services.AddAutoRegisteredServicesFromAssembly(
+    typeof(Application.AssemblyReference).Assembly
+);
+
+// Manually register services with special requirements
+services.AddScoped<ISpecialService>(sp => 
+    new SpecialService(sp.GetRequiredService<IOptions<SpecialConfig>>()));
+```
+
+### Summary
+
+AutoRegister.DI makes a **pragmatic trade-off** between architectural purity and developer convenience. It's designed to work well for most projects, but acknowledges that for very large projects with strict architectural requirements, the coupling concerns might outweigh the benefits. The choice is yours based on your project's specific needs and priorities.
 
 ## Target Framework
 
