@@ -5,8 +5,6 @@
 		<Nullable>enable</Nullable>
 		<!-- NuGet Package Metadata -->
 		<PackageId>Skywithin.AutoRegister</PackageId>
-		<Version>10.0.0</Version>
-		<VersionSuffix></VersionSuffix>
 		<Authors>Max Vagner</Authors>
 		<Description>A dependency injection automation library for .NET that simplifies service registration using attributes. Automatically discovers and registers services decorated with the [AutoRegister] attribute, supporting various lifetimes and registration strategies.</Description>
 		<PackageProjectUrl>https://github.com/Skywithin/AutoRegister</PackageProjectUrl>
