@@ -3,7 +3,7 @@
 		<BuildProject>false</BuildProject>
 		<IsPackable>false</IsPackable>
 		<ExcludeFromSolutionBuild>true</ExcludeFromSolutionBuild>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<OutputType>None</OutputType>
 	</PropertyGroup>
 

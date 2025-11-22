@@ -143,7 +143,7 @@ AutoRegister.DI makes a **pragmatic trade-off** between architectural purity and
 
 ## Target Framework
 
-- .NET 9.0
+- .NET 10.0
 
 ## License
 
