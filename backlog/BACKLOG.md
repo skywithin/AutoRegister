@@ -74,12 +74,6 @@ Open items with `breaking: true`: they change the public API or documented behav
 | BL-0006 | Prevent duplicate registrations when an assembly is scanned twice | enhancement | core | medium | M | BL-0003 |
 | BL-0010 | Allow registering a class under several interfaces | feature | core | medium | M | BL-0009 |
 
-### Test Coverage
-
-| ID | Title | Type | Area | Priority | Size |
-|----|-------|------|------|----------|------|
-| BL-0013 | Add cross-assembly registration tests | test-gap | tests | medium | M |
-
 ### Tech Debt
 
 | ID | Title | Type | Area | Priority | Size |
@@ -99,6 +93,7 @@ Older completed items stay in `backlog/items/`; this table shows the most recent
 
 | ID | Title | Type | Area | Priority | Size |
 |----|-------|------|------|----------|------|
+| BL-0013 | Add cross-assembly registration tests | test-gap | tests | medium | M |
 | BL-0012 | Trim the example to what demonstrates the library | chore | example | low | S |
 | BL-0001 | Replace Demo.Web.Api with a console demo app | chore | example | high | L |
 

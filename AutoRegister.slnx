@@ -18,6 +18,8 @@
     <Project Path="src/AutoRegister.DI/AutoRegister.DI.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/AutoRegister.DI.Tests.FixtureA/AutoRegister.DI.Tests.FixtureA.csproj" />
+    <Project Path="tests/AutoRegister.DI.Tests.FixtureB/AutoRegister.DI.Tests.FixtureB.csproj" />
     <Project Path="tests/AutoRegister.DI.Tests/AutoRegister.DI.Tests.csproj" />
   </Folder>
 </Solution>
