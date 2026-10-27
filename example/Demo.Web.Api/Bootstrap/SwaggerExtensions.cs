@@ -1,5 +1,4 @@
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
 
 namespace Demo.Web.Api.Bootstrap;
 
@@ -25,21 +24,10 @@ internal static class SwaggerExtensions
                            Scheme = "Bearer"
                        });
 
-               options.AddSecurityRequirement(
+               options.AddSecurityRequirement(document =>
                    new OpenApiSecurityRequirement
                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference =
-                                    new OpenApiReference
-                                    {
-                                        Type = ReferenceType.SecurityScheme,
-                                        Id = "Bearer"
-                                    },
-                            },
-                            new List<string>()
-                        }
+                       [new OpenApiSecuritySchemeReference("Bearer", document)] = []
                    });
            });
 
