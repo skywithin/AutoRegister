@@ -49,7 +49,11 @@ Change `status` with `dotnet run tools/backlog-set-field.cs <ID> status <value>`
 
 ## Open
 
-No open items.
+### Tech Debt
+
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0002 | Add CI workflow that builds and tests on push and pull request | chore | packaging | high | S |
 
 ## Done (recent)
 
