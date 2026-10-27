@@ -47,13 +47,45 @@ Change `status` with `dotnet run tools/backlog-set-field.cs <ID> status <value>`
 
 ---
 
+## Next major version
+
+Open items with `breaking: true`: they change the public API or documented behaviour, so ship them together in one major version. They are listed again under Open.
+
+| ID | Title | Type | Area | Priority | Size | Blocked |
+|----|-------|------|------|----------|------|---------|
+| BL-0004 | Replace hard-wired console output with configurable logging | enhancement | core | high | M | BL-0003 |
+| BL-0005 | Fail fast on invalid [AutoRegister] configuration | enhancement | core | high | M | BL-0003 |
+| BL-0007 | Share one instance between Self and Interface registrations | enhancement | core | high | M |  |
+| BL-0008 | Make automatic interface selection deterministic | enhancement | core | high | M |  |
+| BL-0006 | Prevent duplicate registrations when an assembly is scanned twice | enhancement | core | medium | M | BL-0003 |
+| BL-0009 | Redesign the AutoRegisterAttribute surface for extensibility | tech-debt | core | medium | M |  |
+
 ## Open
+
+### Features & Enhancements
+
+| ID | Title | Type | Area | Priority | Size | Blocked |
+|----|-------|------|------|----------|------|---------|
+| BL-0003 | Add an options-based registration entry point | feature | core | high | L |  |
+| BL-0004 | Replace hard-wired console output with configurable logging | enhancement | core | high | M | BL-0003 |
+| BL-0005 | Fail fast on invalid [AutoRegister] configuration | enhancement | core | high | M | BL-0003 |
+| BL-0007 | Share one instance between Self and Interface registrations | enhancement | core | high | M |  |
+| BL-0008 | Make automatic interface selection deterministic | enhancement | core | high | M |  |
+| BL-0006 | Prevent duplicate registrations when an assembly is scanned twice | enhancement | core | medium | M | BL-0003 |
+| BL-0010 | Allow registering a class under several interfaces | feature | core | medium | M | BL-0009 |
 
 ### Tech Debt
 
 | ID | Title | Type | Area | Priority | Size |
 |----|-------|------|------|----------|------|
 | BL-0002 | Add CI workflow that builds and tests on push and pull request | chore | packaging | high | S |
+| BL-0009 | Redesign the AutoRegisterAttribute surface for extensibility | tech-debt | core | medium | M |
+
+### Investigations
+
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0011 | Investigate a source generator instead of runtime reflection | investigation | core | low | L |
 
 ## Done (recent)
 
