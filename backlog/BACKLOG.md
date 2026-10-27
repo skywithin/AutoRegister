@@ -74,12 +74,19 @@ Open items with `breaking: true`: they change the public API or documented behav
 | BL-0006 | Prevent duplicate registrations when an assembly is scanned twice | enhancement | core | medium | M | BL-0003 |
 | BL-0010 | Allow registering a class under several interfaces | feature | core | medium | M | BL-0009 |
 
+### Test Coverage
+
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0013 | Add cross-assembly registration tests | test-gap | tests | medium | M |
+
 ### Tech Debt
 
 | ID | Title | Type | Area | Priority | Size |
 |----|-------|------|------|----------|------|
 | BL-0002 | Add CI workflow that builds and tests on push and pull request | chore | packaging | high | S |
 | BL-0009 | Redesign the AutoRegisterAttribute surface for extensibility | tech-debt | core | medium | M |
+| BL-0012 | Trim the example to what demonstrates the library | chore | example | low | S |
 
 ### Investigations
 
