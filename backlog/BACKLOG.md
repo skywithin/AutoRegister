@@ -86,7 +86,6 @@ Open items with `breaking: true`: they change the public API or documented behav
 |----|-------|------|------|----------|------|
 | BL-0002 | Add CI workflow that builds and tests on push and pull request | chore | packaging | high | S |
 | BL-0009 | Redesign the AutoRegisterAttribute surface for extensibility | tech-debt | core | medium | M |
-| BL-0012 | Trim the example to what demonstrates the library | chore | example | low | S |
 
 ### Investigations
 
@@ -100,5 +99,6 @@ Older completed items stay in `backlog/items/`; this table shows the most recent
 
 | ID | Title | Type | Area | Priority | Size |
 |----|-------|------|------|----------|------|
+| BL-0012 | Trim the example to what demonstrates the library | chore | example | low | S |
 | BL-0001 | Replace Demo.Web.Api with a console demo app | chore | example | high | L |
 

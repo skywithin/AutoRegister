@@ -98,15 +98,29 @@ Services live in the layer that owns them. They can be `internal`, and they depe
 
 ```csharp
 // Demo.Domain: the abstraction
-public interface IUserDataProvider { /* ... */ }
+public interface IUserDataProvider
+{
+    void Add(User user);
+    User? Find(Guid id);
+}
 
 // Demo.Infrastructure: the implementation, a singleton so its in-memory data outlives each scope
 [AutoRegister(Lifetime.Singleton, RegisterAs.Interface)]
-internal sealed class UserDataProvider : IUserDataProvider { /* ... */ }
+internal sealed class UserDataProvider : IUserDataProvider { /* ConcurrentDictionary<Guid, User> */ }
 
-// Demo.Application: the consumer
+// Demo.Application: the consumer, depending on Domain and SharedKernel abstractions
 [AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
-internal sealed class UserService(IUserDataProvider users, IClockService clock) : IUserService { /* ... */ }
+internal sealed class UserService(IUserDataProvider userDataProvider, IClockService clock) : IUserService
+{
+    public User Create(string name, string email)
+    {
+        var user = new User(Guid.NewGuid(), name, email, clock.UtcNow);
+        userDataProvider.Add(user);
+        return user;
+    }
+
+    public User? GetById(Guid id) => userDataProvider.Find(id);
+}
 ```
 
 The host makes one call:
