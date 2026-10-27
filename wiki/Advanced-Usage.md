@@ -34,15 +34,15 @@ internal sealed class UserService : IUserService
 }
 
 // Infrastructure Layer
-[AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
+[AutoRegister(Lifetime.Singleton, RegisterAs.Interface)]
 internal sealed class UserDataProvider : IUserDataProvider
 {
     // Implementation...
 }
 
-// Web API Layer
-[AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
-public class HealthCheckService : IHealthCheckService
+// Console App Layer
+[AutoRegister(Lifetime.Transient, RegisterAs.Self)]
+internal sealed class UserScenario
 {
     // Implementation...
 }
@@ -57,14 +57,12 @@ Configure each layer to register its own services in a hierarchical manner. This
 Each layer provides an extension method that registers its own services and calls the next layer's registration:
 
 ```csharp
-// Web API Bootstrap
-public static IServiceCollection AddApiServices(this IServiceCollection services)
+// Console App Bootstrap (an ASP.NET Core app looks the same)
+public static IServiceCollection AddDemoConsoleApp(this IServiceCollection services)
 {
     services
-        .AddControllers()
-        .AddSwagger()
         .AddDemoInfrastructure()  // Registers all lower layers
-        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly); // Registers Web API layer services
+        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly); // Registers the app's own services
     
     return services;
 }
@@ -112,10 +110,10 @@ public static IServiceCollection AddDemoKernel(this IServiceCollection services)
 To avoid hardcoding assembly references, use an `AssemblyReference` class in each project:
 
 ```csharp
-// In each project
-public static class AssemblyReference
+// In each project: Properties/AssemblyReference.cs
+public class AssemblyReference
 {
-    public static readonly Assembly Assembly = typeof(AssemblyReference).Assembly;
+    public static Assembly Assembly => typeof(AssemblyReference).Assembly;
 }
 ```
 

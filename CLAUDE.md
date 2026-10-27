@@ -13,7 +13,7 @@ dotnet restore AutoRegister.slnx
 dotnet build AutoRegister.slnx -c Release
 dotnet test tests/AutoRegister.DI.Tests/AutoRegister.DI.Tests.csproj
 dotnet test tests/AutoRegister.DI.Tests/AutoRegister.DI.Tests.csproj --filter "FullyQualifiedName~<TestName>"   # single test
-dotnet run --project example/Demo.Web.Api   # run the demo API
+dotnet run --project example/Demo.ConsoleApp   # run the demo
 ```
 
 Tests use NUnit + FluentAssertions. The library project has `GeneratePackageOnBuild=true`, so every build also produces a `.nupkg`.
@@ -22,7 +22,7 @@ Tests use NUnit + FluentAssertions. The library project has `GeneratePackageOnBu
 
 - `src/AutoRegister.DI/` — the library (namespace `Skywithin.AutoRegister.DI`). All logic lives in `IoCExtensions.cs`. `AutoRegisterAttribute.cs` defines the attribute plus the `Lifetime` and `RegisterAs` (a `[Flags]` enum) types.
 - `tests/AutoRegister.DI.Tests/` — the test service types (`ServiceA`…, `IServiceA`…) are declared at the top of `IoCExtensionsTests.cs`, and tests scan `Assembly.GetExecutingAssembly()`. Any new fixture type you add there is picked up by every test that scans the assembly, so registration-count assertions may need updating.
-- `example/` — a Clean Architecture demo (Domain → Application → Infrastructure → Web.Api, plus SharedKernel). It references the library by `ProjectReference`. Each layer has `Properties/AssemblyReference.cs`, which exposes `AssemblyReference.Assembly`, and a `Bootstrap/DependencyInjection.cs` extension (`AddDemoX()`) that chains the lower layer and then calls `AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly)`. This is the usage pattern the library recommends.
+- `example/` — a Clean Architecture demo (SharedKernel → Domain → Application → Infrastructure → ConsoleApp, a generic-host console app with no third-party packages). It references the library by `ProjectReference`. Each layer has `Properties/AssemblyReference.cs`, which exposes `AssemblyReference.Assembly`, and a `Bootstrap/DependencyInjection.cs` extension (`AddDemoX()`) that chains the lower layer and then calls `AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly)`. This is the usage pattern the library recommends.
 - `wiki/` — user-facing Markdown docs, wrapped in a NoTargets project (`ExcludeFromSolutionBuild`). Update these along with `README.md` when behavior changes. `README.md` is also packed into the NuGet package.
 - Per-folder `Directory.Build.props` (`src/`, `tests/`, `example/`) set LangVersion 13, nullable, and NuGet audit settings. There is no root-level props file and no central package management.
 

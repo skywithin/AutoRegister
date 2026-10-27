@@ -55,5 +55,7 @@ No open items.
 
 Older completed items stay in `backlog/items/`; this table shows the most recent completions.
 
-Nothing completed yet.
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0001 | Replace Demo.Web.Api with a console demo app | chore | example | high | L |
 

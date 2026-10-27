@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+using System.Reflection;
 
-namespace Demo.Web.Api;
+namespace Demo.ConsoleApp;
 
 public class AssemblyReference
 {

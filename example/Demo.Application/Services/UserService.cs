@@ -2,6 +2,7 @@ using Skywithin.AutoRegister.DI;
 using Demo.Domain.Abstractions;
 using Demo.Domain.Dtos;
 using Demo.Domain.Models;
+using Demo.SharedKernel.Services;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,10 +11,12 @@ namespace Demo.Application.Services;
 [AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
 internal sealed class UserService(
     IUserDataProvider userDataProvider,
+    IClockService clock,
     ILogger<UserService> logger) : IUserService
 {
     private readonly ILogger<UserService> _logger = logger;
     private readonly IUserDataProvider _userDataProvider = userDataProvider;
+    private readonly IClockService _clock = clock;
 
 
     /// <summary>
@@ -25,14 +28,14 @@ internal sealed class UserService(
         
         await Task.Delay(50); // Simulate async operation
         
-        var users = _userDataProvider.Users.AsQueryable();
+        IEnumerable<User> users = _userDataProvider.GetAll();
         
         if (!includeInactive)
         {
             users = users.Where(u => u.IsActive);
         }
 
-        return users.Select(MapToResponse);
+        return users.Select(MapToResponse).ToList();
     }
 
     /// <summary>
@@ -44,7 +47,7 @@ internal sealed class UserService(
         
         await Task.Delay(30); // Simulate async operation
         
-        var user = _userDataProvider.Users.FirstOrDefault(u => u.Id == id);
+        var user = _userDataProvider.Find(id);
         return user != null ? MapToResponse(user) : null;
     }
 
@@ -57,7 +60,7 @@ internal sealed class UserService(
         
         await Task.Delay(30); // Simulate async operation
         
-        var user = _userDataProvider.Users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+        var user = _userDataProvider.GetAll().FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
         return user != null ? MapToResponse(user) : null;
     }
 
@@ -69,7 +72,7 @@ internal sealed class UserService(
         _logger.LogInformation("Creating user with email: {Email}", request.Email);
         
         // Validate email uniqueness
-        if (_userDataProvider.Users.Any(u => u.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
+        if (_userDataProvider.GetAll().Any(u => u.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
         {
             throw new ValidationException($"User with email '{request.Email}' already exists.");
         }
@@ -85,10 +88,10 @@ internal sealed class UserService(
             PhoneNumber = request.PhoneNumber,
             DateOfBirth = request.DateOfBirth,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = _clock.UtcNow
         };
 
-        _userDataProvider.Users.Add(user);
+        _userDataProvider.TryAdd(user);
         
         _logger.LogInformation("User created successfully with ID: {UserId}", user.Id);
         
@@ -102,7 +105,7 @@ internal sealed class UserService(
     {
         _logger.LogInformation("Updating user with ID: {UserId}", id);
         
-        var user = _userDataProvider.Users.FirstOrDefault(u => u.Id == id);
+        var user = _userDataProvider.Find(id);
         if (user == null)
         {
             _logger.LogWarning("User not found with ID: {UserId}", id);
@@ -112,7 +115,7 @@ internal sealed class UserService(
         // Validate email uniqueness if email is being changed
         if (!string.IsNullOrEmpty(request.Email) && 
             !request.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase) &&
-            _userDataProvider.Users.Any(u => u.Id != id && u.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
+            _userDataProvider.GetAll().Any(u => u.Id != id && u.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
         {
             throw new ValidationException($"User with email '{request.Email}' already exists.");
         }
@@ -138,7 +141,7 @@ internal sealed class UserService(
         if (request.IsActive.HasValue)
             user.IsActive = request.IsActive.Value;
 
-        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedAt = _clock.UtcNow;
         
         _logger.LogInformation("User updated successfully with ID: {UserId}", user.Id);
         
@@ -152,7 +155,7 @@ internal sealed class UserService(
     {
         _logger.LogInformation("Deleting user with ID: {UserId}", id);
         
-        var user = _userDataProvider.Users.FirstOrDefault(u => u.Id == id);
+        var user = _userDataProvider.Find(id);
         if (user == null)
         {
             _logger.LogWarning("User not found with ID: {UserId}", id);
@@ -161,7 +164,7 @@ internal sealed class UserService(
 
         await Task.Delay(50); // Simulate async operation
 
-        _userDataProvider.Users.Remove(user);
+        _userDataProvider.Remove(id);
         
         _logger.LogInformation("User deleted successfully with ID: {UserId}", id);
         
@@ -179,13 +182,13 @@ internal sealed class UserService(
         
         var searchTermLower = searchTerm.ToLowerInvariant();
         
-        var matchingUsers = _userDataProvider.Users.Where(u => 
+        var matchingUsers = _userDataProvider.GetAll().Where(u => 
             u.FirstName.ToLowerInvariant().Contains(searchTermLower) ||
             u.LastName.ToLowerInvariant().Contains(searchTermLower) ||
             u.Email.ToLowerInvariant().Contains(searchTermLower) ||
             u.FullName.ToLowerInvariant().Contains(searchTermLower));
 
-        return matchingUsers.Select(MapToResponse);
+        return matchingUsers.Select(MapToResponse).ToList();
     }
 
     private static UserResponse MapToResponse(User user)

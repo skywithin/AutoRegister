@@ -1,9 +1,14 @@
-﻿using Demo.Domain.Models;
+using Demo.Domain.Models;
 
 namespace Demo.Domain.Abstractions;
 
 public interface IUserDataProvider
 {
-    HashSet<User> Users { get; }
-}
+    IReadOnlyCollection<User> GetAll();
 
+    User? Find(Guid id);
+
+    bool TryAdd(User user);
+
+    bool Remove(Guid id);
+}

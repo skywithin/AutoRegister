@@ -128,14 +128,14 @@ switch (lifetime)
 In a Clean Architecture setup, dependencies flow from outer layers to inner layers:
 
 ```
-Web API → Infrastructure → Application → Domain → SharedKernel
+ConsoleApp → Infrastructure → Application → Domain → SharedKernel
 ```
 
 ### Registration Flow
 
-1. **Web API Layer** calls `AddApiServices()`
-   - Registers Web API services
+1. **Console App Layer** calls `AddDemoConsoleApp()`
    - Calls `AddDemoInfrastructure()`
+   - Registers the app's own services
 
 2. **Infrastructure Layer** calls `AddDemoInfrastructure()`
    - Registers Infrastructure services

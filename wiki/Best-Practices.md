@@ -183,7 +183,7 @@ public void ConfigureServices(IServiceCollection services)
 {
     // Register framework services first
     services.AddControllers();
-    services.AddSwagger();
+    services.AddSwaggerGen();
     
     // Register auto-registered services early (before other third-party services that might depend on them)
     services.AddAutoRegisteredServicesFromAssembly(

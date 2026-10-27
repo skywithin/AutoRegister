@@ -67,30 +67,45 @@ public class UsersController : ControllerBase
 
 ## Clean Architecture Example
 
-A complete Clean Architecture example with multiple layers:
+The repository's `example/` folder is a small Clean Architecture solution that ends in a console app. Run it with:
+
+```bash
+dotnet run --project example/Demo.ConsoleApp
+```
+
+It prints the library's registration log for every layer, then two short scenarios: one compares the three lifetimes, the other creates a user in one scope and reads it back in another.
 
 ### Project Structure
 
 ```
 example/
-├── Demo.SharedKernel/     # Shared domain concepts
-├── Demo.Domain/           # Business logic and models
-├── Demo.Application/      # Use cases and application services
-├── Demo.Infrastructure/   # External concerns (data, APIs)
-└── Demo.Web.Api/          # Presentation layer
+├── Demo.SharedKernel/     # Cross-cutting services (IClockService)
+├── Demo.Domain/           # Models, DTOs and abstractions (IUserDataProvider)
+├── Demo.Application/      # Use cases (IUserService)
+├── Demo.Infrastructure/   # Implementations of domain abstractions (UserDataProvider)
+└── Demo.ConsoleApp/       # Host and entry point
+```
+
+Every layer follows the same pattern: a `Properties/AssemblyReference.cs` that exposes the layer's assembly, and a `Bootstrap/DependencyInjection.cs` extension that registers the layer below it and then scans its own assembly.
+
+### AssemblyReference
+
+```csharp
+// Demo.SharedKernel/Properties/AssemblyReference.cs
+public class AssemblyReference
+{
+    public static Assembly Assembly => typeof(AssemblyReference).Assembly;
+}
 ```
 
 ### SharedKernel Layer
 
 ```csharp
-// Demo.SharedKernel/Services/IClockService.cs
+// Demo.SharedKernel/Services/ClockService.cs
 public interface IClockService
 {
     DateTime UtcNow { get; }
 }
-
-// Demo.SharedKernel/Services/ClockService.cs
-using Skywithin.AutoRegister.DI;
 
 [AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
 internal sealed class ClockService : IClockService
@@ -99,250 +114,131 @@ internal sealed class ClockService : IClockService
 }
 
 // Demo.SharedKernel/Bootstrap/DependencyInjection.cs
-using Skywithin.AutoRegister.DI;
-
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDemoKernel(
-        this IServiceCollection services)
+    public static IServiceCollection AddDemoKernel(this IServiceCollection services)
     {
-        services.AddAutoRegisteredServicesFromAssembly(
-            AssemblyReference.Assembly);
-        
+        services.AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
+
         return services;
     }
-}
-
-// Demo.SharedKernel/Properties/AssemblyReference.cs
-public static class AssemblyReference
-{
-    public static readonly Assembly Assembly = typeof(AssemblyReference).Assembly;
 }
 ```
 
 ### Domain Layer
 
+The domain layer defines the abstraction that infrastructure implements. It has no `[AutoRegister]` classes of its own, but it still scans its assembly so that adding one later needs no wiring.
+
 ```csharp
 // Demo.Domain/Abstractions/IUserDataProvider.cs
 public interface IUserDataProvider
 {
-    Task<User> GetUserAsync(int id);
-    Task<User> CreateUserAsync(CreateUserRequest request);
-}
-
-// Demo.Domain/Models/User.cs
-public class User
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    IReadOnlyCollection<User> GetAll();
+    User? Find(Guid id);
+    bool TryAdd(User user);
+    bool Remove(Guid id);
 }
 
 // Demo.Domain/Bootstrap/DependencyInjection.cs
-using Skywithin.AutoRegister.DI;
-
-public static class DependencyInjection
+public static IServiceCollection AddDemoDomain(this IServiceCollection services)
 {
-    public static IServiceCollection AddDemoDomain(
-        this IServiceCollection services)
-    {
-        services
-            .AddDemoKernel()  // Register SharedKernel first
-            .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
-        
-        return services;
-    }
+    services
+        .AddDemoKernel()
+        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
+
+    return services;
 }
 ```
 
 ### Application Layer
 
+`UserService` depends on abstractions from two lower layers. The container resolves both because those layers registered their implementations.
+
 ```csharp
-// Demo.Application/Services/IUserService.cs
-public interface IUserService
-{
-    Task<UserResponse> GetUserAsync(int id);
-    Task<UserResponse> CreateUserAsync(CreateUserRequest request);
-}
-
 // Demo.Application/Services/UserService.cs
-using Skywithin.AutoRegister.DI;
-
 [AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
-internal sealed class UserService : IUserService
+internal sealed class UserService(
+    IUserDataProvider userDataProvider,
+    IClockService clock,
+    ILogger<UserService> logger) : IUserService
 {
-    private readonly IUserDataProvider _dataProvider;
-    private readonly IClockService _clockService;
-    private readonly ILogger<UserService> _logger;
-
-    public UserService(
-        IUserDataProvider dataProvider,
-        IClockService clockService,
-        ILogger<UserService> logger)
-    {
-        _dataProvider = dataProvider;
-        _clockService = clockService;
-        _logger = logger;
-    }
-
-    public async Task<UserResponse> GetUserAsync(int id)
-    {
-        _logger.LogInformation("Getting user {UserId} at {Time}", 
-            id, _clockService.UtcNow);
-        
-        var user = await _dataProvider.GetUserAsync(id);
-        return new UserResponse
-        {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email
-        };
-    }
-
-    public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
-    {
-        var user = await _dataProvider.CreateUserAsync(request);
-        return new UserResponse
-        {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email
-        };
-    }
+    // CreateUserAsync, GetUserByIdAsync, GetAllUsersAsync, ...
 }
 
 // Demo.Application/Bootstrap/DependencyInjection.cs
-using Skywithin.AutoRegister.DI;
-
-public static class DependencyInjection
+public static IServiceCollection AddDemoApplication(this IServiceCollection services)
 {
-    public static IServiceCollection AddDemoApplication(
-        this IServiceCollection services)
-    {
-        services
-            .AddDemoDomain()  // Register Domain layer
-            .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
-        
-        return services;
-    }
+    services
+        .AddDemoDomain()
+        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
+
+    return services;
 }
 ```
 
 ### Infrastructure Layer
 
+The in-memory store is a singleton, so its data outlives each scope. Because one instance is shared, it uses a `ConcurrentDictionary`.
+
 ```csharp
 // Demo.Infrastructure/Persistence/UserDataProvider.cs
-using Skywithin.AutoRegister.DI;
-
-[AutoRegister(Lifetime.Scoped, RegisterAs.Interface)]
+[AutoRegister(Lifetime.Singleton, RegisterAs.Interface)]
 internal sealed class UserDataProvider : IUserDataProvider
 {
-    private readonly DbContext _dbContext;
+    private readonly ConcurrentDictionary<Guid, User> _users = new();
 
-    public UserDataProvider(DbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
-    public async Task<User> GetUserAsync(int id)
-    {
-        return await _dbContext.Users.FindAsync(id);
-    }
-
-    public async Task<User> CreateUserAsync(CreateUserRequest request)
-    {
-        var user = new User
-        {
-            Name = request.Name,
-            Email = request.Email
-        };
-        
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
-        
-        return user;
-    }
+    public IReadOnlyCollection<User> GetAll() => _users.Values.ToList();
+    public User? Find(Guid id) => _users.GetValueOrDefault(id);
+    public bool TryAdd(User user) => _users.TryAdd(user.Id, user);
+    public bool Remove(Guid id) => _users.TryRemove(id, out _);
 }
 
 // Demo.Infrastructure/Bootstrap/DependencyInjection.cs
-using Skywithin.AutoRegister.DI;
-
-public static class DependencyInjection
+public static IServiceCollection AddDemoInfrastructure(this IServiceCollection services)
 {
-    public static IServiceCollection AddDemoInfrastructure(
-        this IServiceCollection services)
-    {
-        services
-            .AddDemoApplication()  // Register Application layer
-            .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
-        
-        return services;
-    }
+    services
+        .AddDemoApplication()
+        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
+
+    return services;
 }
 ```
 
-### Web API Layer
+### Console App Layer
+
+The entry point registers everything with one call. The app's own services use `RegisterAs.Self`, and the lifetime demo types name their interface explicitly because each implements two.
 
 ```csharp
-// Demo.Web.Api/Controllers/UserController.cs
-[ApiController]
-[Route("api/[controller]")]
-public class UserController : ControllerBase
+// Demo.ConsoleApp/Bootstrap/DependencyInjection.cs
+internal static IServiceCollection AddDemoConsoleApp(this IServiceCollection services)
 {
-    private readonly IUserService _userService;
+    services
+        .AddDemoInfrastructure()  // Registers all lower layers
+        .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
 
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetUser(int id)
-    {
-        var user = await _userService.GetUserAsync(id);
-        return Ok(user);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<UserResponse>> CreateUser(
-        CreateUserRequest request)
-    {
-        var user = await _userService.CreateUserAsync(request);
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-    }
+    return services;
 }
 
-// Demo.Web.Api/Bootstrap/DependencyInjection.cs
-using Skywithin.AutoRegister.DI;
+// Demo.ConsoleApp/Lifetimes/Operations.cs
+[AutoRegister(Lifetime.Scoped, RegisterAs.Interface, typeof(IScopedOperation))]
+internal sealed class ScopedOperation : Operation, IScopedOperation;
 
-public static class DependencyInjection
-{
-    public static IServiceCollection AddApiServices(
-        this IServiceCollection services)
-    {
-        services
-            .AddControllers()
-            .AddSwagger()
-            .AddDemoInfrastructure()  // Register all lower layers
-            .AddAutoRegisteredServicesFromAssembly(AssemblyReference.Assembly);
-        
-        return services;
-    }
-}
+// Demo.ConsoleApp/Scenarios/UserScenario.cs
+[AutoRegister(Lifetime.Transient, RegisterAs.Self)]
+internal sealed class UserScenario(IServiceScopeFactory scopeFactory) { /* ... */ }
 
-// Demo.Web.Api/Program.cs
-var builder = WebApplication.CreateBuilder(args);
+// Demo.ConsoleApp/Program.cs
+var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddApiServices();
+builder.Services.AddDemoConsoleApp();
 
-var app = builder.Build();
+using var host = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.MapControllers();
-
-app.Run();
+host.Services.GetRequiredService<LifetimeScenario>().Run();
+await host.Services.GetRequiredService<UserScenario>().RunAsync();
 ```
+
+The registration code is the same in an ASP.NET Core app: call the outermost `AddDemoX()` on `builder.Services` from `WebApplication.CreateBuilder(args)`.
 
 ## Different Registration Strategies
 
