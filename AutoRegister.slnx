@@ -6,10 +6,10 @@
   </Configurations>
   <Folder Name="/example/">
     <Project Path="example/Demo.Application/Demo.Application.csproj" />
+    <Project Path="example/Demo.ConsoleApp/Demo.ConsoleApp.csproj" />
     <Project Path="example/Demo.Domain/Demo.Domain.csproj" />
     <Project Path="example/Demo.Infrastructure/Demo.Infrastructure.csproj" />
     <Project Path="example/Demo.SharedKernel/Demo.SharedKernel.csproj" />
-    <Project Path="example/Demo.Web.Api/Demo.Web.Api.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -19,8 +19,5 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AutoRegister.DI.Tests/AutoRegister.DI.Tests.csproj" />
-  </Folder>
-  <Folder Name="/wiki/">
-    <Project Path="wiki/AutoRegister.Wiki.csproj" />
   </Folder>
 </Solution>

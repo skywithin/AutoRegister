@@ -109,7 +109,7 @@ Examples: `fix(core): skip open generic types during the assembly scan (BUG-0001
 
 This library is consumed through NuGet, so apply this before marking an item done:
 
-- If the change touches a public member (`AutoRegisterAttribute`, `Lifetime`, `RegisterAs`, `AddAutoRegisteredServicesFromAssembly`) or documented behaviour, update `README.md` and the affected `wiki/` pages in the same change. The README is packed into the NuGet package, so a stale README ships to consumers.
+- If the change touches a public member (`AutoRegisterAttribute`, `Lifetime`, `RegisterAs`, `AddAutoRegisteredServicesFromAssembly`) or documented behaviour, update `README.md` and the affected `docs/` pages in the same change. The README is packed into the NuGet package, so a stale README ships to consumers.
 - If the change alters the recommended usage pattern, update the `example/` projects so the demo still shows it.
 - If the item has `breaking: true`, say in the Resolution section that it needs a major version bump. Breaking items are grouped under "Next major version" in `backlog/BACKLOG.md` and should ship together; do not tag a release that contains only some of them unless the user decides to.
 - If the change alters how scanning, interface resolution or registration work, update the "Registration semantics" section of `CLAUDE.md` so later sessions read an accurate model.

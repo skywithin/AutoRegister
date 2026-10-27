@@ -31,14 +31,14 @@ blocked_by: null     # free text: what blocks this item (an item ID or an extern
 
 Change `status` with `dotnet run tools/backlog-set-field.cs <ID> status <value>`; it sets `completed` and rebuilds this index. Do not hand-edit `status` or `completed`. Validate everything with `dotnet run tools/backlog-lint.cs`.
 
-**Areas:** `core` is `src/AutoRegister.DI/` (`IoCExtensions.cs`, `AutoRegisterAttribute.cs`, `ConsoleHelper.cs`); `tests` is the test project; `example` is the Clean Architecture demo under `example/`; `packaging` is the csproj, `Directory.Build.props`, NuGet metadata and GitHub workflows; `docs` is README.md, `wiki/` and CLAUDE.md.
+**Areas:** `core` is `src/AutoRegister.DI/` (`IoCExtensions.cs`, `AutoRegisterAttribute.cs`, `ConsoleHelper.cs`); `tests` is the test project; `example` is the Clean Architecture demo under `example/`; `packaging` is the csproj, `Directory.Build.props`, NuGet metadata and GitHub workflows; `docs` is README.md, `docs/` and CLAUDE.md.
 
 **Size guide:**
 
 | Size | Scope | Typical effort |
 |------|-------|----------------|
 | `S` | One or two files, mechanical change | < 30 min |
-| `M` | Library change plus tests plus README/wiki | 30 min - 2 hours |
+| `M` | Library change plus tests plus README/docs | 30 min - 2 hours |
 | `L` | Cross-cutting: attribute, registration logic, tests, example and docs together | Half day |
 | `XL` | Public API redesign; needs a written proposal in the item and a major version | Day+ |
 
@@ -49,11 +49,17 @@ Change `status` with `dotnet run tools/backlog-set-field.cs <ID> status <value>`
 
 ## Open
 
-No open items.
+### Tech Debt
+
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0002 | Add CI workflow that builds and tests on push and pull request | chore | packaging | high | S |
 
 ## Done (recent)
 
 Older completed items stay in `backlog/items/`; this table shows the most recent completions.
 
-Nothing completed yet.
+| ID | Title | Type | Area | Priority | Size |
+|----|-------|------|------|----------|------|
+| BL-0001 | Replace Demo.Web.Api with a console demo app | chore | example | high | L |
 

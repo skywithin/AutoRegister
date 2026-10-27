@@ -3,7 +3,7 @@ name: backlog-process-item
 effort: high
 description: >
   Implement a non-bug BL-XXXX item: investigate, plan for approval, implement, build + test,
-  update README and wiki, mark done. TRIGGER: "process backlog item", "work on BL-XXXX". BUG
+  update README and docs, mark done. TRIGGER: "process backlog item", "work on BL-XXXX". BUG
   items use /backlog-fix-bug; new items use /backlog-add-item.
 args:
   - name: item_id
@@ -30,7 +30,7 @@ Apply §6 (public surface gate) in `.claude/prompts/backlog-gates.md`: an XL ite
 
 From the item collect type, Context, Scope, Decision points, Acceptance criteria and Locations. Read every file under Locations in full. This library is three small source files plus one test file, so investigate directly; do not spawn an explorer agent.
 
-Also grep `README.md`, `wiki/` and `CLAUDE.md` for every member or behaviour the item changes: they document the public surface and must change with it.
+Also grep `README.md`, `docs/` and `CLAUDE.md` for every member or behaviour the item changes: they document the public surface and must change with it.
 
 ## Step 3: present the plan
 
@@ -46,7 +46,7 @@ Type: <type> | Breaking: <yes/no>
 - IoCExtensionsTests: <what is added or changed, including fixture types and any count assertions they affect>
 
 ### Docs
-- README.md: <sections>  |  wiki: <pages>  |  example: <projects or "none">  |  CLAUDE.md: <sections or "none">
+- README.md: <sections>  |  docs: <pages>  |  example: <projects or "none">  |  CLAUDE.md: <sections or "none">
 
 ### Decision points
 - <each decision point from the item, with the option you propose and why>
@@ -73,7 +73,7 @@ Run the new or changed tests first for fast feedback, then follow §2 in `.claud
 
 ## Step 6: public surface
 
-Follow §6 in `.claude/prompts/backlog-gates.md`: README and wiki updated for any public change, example updated if the usage pattern changed, Resolution notes the major version for breaking items, CLAUDE.md Registration semantics updated if the behaviour it describes changed.
+Follow §6 in `.claude/prompts/backlog-gates.md`: README and `docs/` updated for any public change, example updated if the usage pattern changed, Resolution notes the major version for breaking items, CLAUDE.md Registration semantics updated if the behaviour it describes changed.
 
 ## Step 7: update the backlog
 

@@ -45,7 +45,7 @@ Present:
 ## Decision points
 - <options the item left open, with the one you propose>
 ## Docs
-- README.md / wiki: <pages and sections, or "none">
+- README.md / docs: <pages and sections, or "none">
 ```
 
 Ask: "Root cause found. Proceed with the fix? (yes / no / adjust)".
@@ -60,7 +60,7 @@ Run the reproducing test, then follow §2 in `.claude/prompts/backlog-gates.md` 
 
 ## Step 7: public surface
 
-Follow §6 in `.claude/prompts/backlog-gates.md`: README and wiki updated if the fix changes documented behaviour (and the item should then be `breaking: true`); CLAUDE.md Registration semantics updated if the behaviour it describes changed.
+Follow §6 in `.claude/prompts/backlog-gates.md`: README and `docs/` updated if the fix changes documented behaviour (and the item should then be `breaking: true`); CLAUDE.md Registration semantics updated if the behaviour it describes changed.
 
 ## Step 8: update the backlog
 
