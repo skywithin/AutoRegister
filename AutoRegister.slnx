@@ -20,7 +20,4 @@
   <Folder Name="/tests/">
     <Project Path="tests/AutoRegister.DI.Tests/AutoRegister.DI.Tests.csproj" />
   </Folder>
-  <Folder Name="/wiki/">
-    <Project Path="wiki/AutoRegister.Wiki.csproj" />
-  </Folder>
 </Solution>

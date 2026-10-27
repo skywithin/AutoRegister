@@ -30,9 +30,9 @@ Keep it short. Combine questions where natural. Where the user's description alr
 Ask together:
 - A short title.
 - Type: feature, enhancement, tech-debt, test-gap, investigation or chore.
-- Area: core (`src/AutoRegister.DI/`), tests, example (the demo under `example/`), packaging (csproj, NuGet, CI) or docs (README, wiki, CLAUDE.md).
+- Area: core (`src/AutoRegister.DI/`), tests, example (the demo under `example/`), packaging (csproj, NuGet, CI) or docs (README, `docs/`, CLAUDE.md).
 - Priority: critical, high, medium or low.
-- Size: S (one or two files, mechanical), M (library + tests + README/wiki), L (cross-cutting: attribute, registration logic, tests, example, docs), XL (public API redesign; needs a proposal and a major version).
+- Size: S (one or two files, mechanical), M (library + tests + README/docs), L (cross-cutting: attribute, registration logic, tests, example, docs), XL (public API redesign; needs a proposal and a major version).
 - Breaking: does it change the public API or documented behaviour? (`breaking: true` items ship together in a major version.)
 
 Never write the item with unconfirmed priority or size.
@@ -41,7 +41,7 @@ Never write the item with unconfirmed priority or size.
 
 Ask:
 - What needs to be done, and why (the evidence: a failing scenario, a missing registration, a warning).
-- Acceptance criteria, or offer to derive them from the description. Always include "`dotnet build` and the full test suite pass" and, when the public surface changes, "README and wiki updated".
+- Acceptance criteria, or offer to derive them from the description. Always include "`dotnet build` and the full test suite pass" and, when the public surface changes, "README and docs updated".
 
 ### Round 3 (optional): anything else?
 

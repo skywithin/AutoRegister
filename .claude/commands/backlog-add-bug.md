@@ -34,7 +34,7 @@ Infer and confirm in the same round:
 - Area: core, tests, example, packaging or docs.
 - Priority: critical (wrong registrations or crashes for consumers), high (silent skips or an unusable feature), medium, low.
 - Size: S, M, L or XL (see the size guide in `backlog/BACKLOG.md`).
-- Breaking: does the fix change documented behaviour? If the README or wiki documents today's behaviour as intended, the fix is `breaking: true`.
+- Breaking: does the fix change documented behaviour? If the README or `docs/` documents today's behaviour as intended, the fix is `breaking: true`.
 
 Never write the item with unconfirmed priority or size.
 
