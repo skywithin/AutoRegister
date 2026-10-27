@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Fixture assembly for cross-assembly registration tests; not a test project itself. -->
+  <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AutoRegister.DI\AutoRegister.DI.csproj" />
+  </ItemGroup>
+
+</Project>

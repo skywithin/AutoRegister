@@ -93,5 +93,7 @@ Older completed items stay in `backlog/items/`; this table shows the most recent
 
 | ID | Title | Type | Area | Priority | Size |
 |----|-------|------|------|----------|------|
+| BL-0013 | Add cross-assembly registration tests | test-gap | tests | medium | M |
+| BL-0012 | Trim the example to what demonstrates the library | chore | example | low | S |
 | BL-0001 | Replace Demo.Web.Api with a console demo app | chore | example | high | L |
 

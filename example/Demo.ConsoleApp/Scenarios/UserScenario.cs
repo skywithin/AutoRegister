@@ -1,6 +1,5 @@
 using Skywithin.AutoRegister.DI;
 using Demo.Application.Services;
-using Demo.Domain.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.ConsoleApp.Scenarios;
@@ -11,7 +10,7 @@ namespace Demo.ConsoleApp.Scenarios;
 [AutoRegister(Lifetime.Transient, RegisterAs.Self)]
 internal sealed class UserScenario(IServiceScopeFactory scopeFactory)
 {
-    public async Task RunAsync()
+    public void Run()
     {
         Console.WriteLine("== Users: write in one scope, read in another ==");
 
@@ -19,28 +18,17 @@ internal sealed class UserScenario(IServiceScopeFactory scopeFactory)
 
         using (var scope = scopeFactory.CreateScope())
         {
-            var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-
-            var created = await userService.CreateUserAsync(new CreateUserRequest
-            {
-                FirstName = "Ada",
-                LastName = "Lovelace",
-                Email = "ada.lovelace@example.com"
-            });
+            var created = scope.ServiceProvider.GetRequiredService<IUserService>()
+                .Create("Ada Lovelace", "ada.lovelace@example.com");
 
             userId = created.Id;
-            Console.WriteLine($"Scope 1: created {created.FullName} <{created.Email}>");
+            Console.WriteLine($"Scope 1: created {created.Name} <{created.Email}>");
         }
 
         using (var scope = scopeFactory.CreateScope())
         {
-            var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-
-            var found = await userService.GetUserByIdAsync(userId);
-            Console.WriteLine($"Scope 2: looked up by ID, found {found?.FullName ?? "nothing"}");
-
-            var activeUsers = await userService.GetAllUsersAsync();
-            Console.WriteLine($"Scope 2: active users are {string.Join(", ", activeUsers.Select(u => u.FullName))}");
+            var found = scope.ServiceProvider.GetRequiredService<IUserService>().GetById(userId);
+            Console.WriteLine($"Scope 2: looked up by ID, found {found?.Name ?? "nothing"}");
         }
 
         Console.WriteLine("UserService is scoped, but the data survives because UserDataProvider is a singleton.");

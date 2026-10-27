@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AutoRegister.DI\AutoRegister.DI.csproj" />
+    <ProjectReference Include="..\AutoRegister.DI.Tests.FixtureA\AutoRegister.DI.Tests.FixtureA.csproj" />
+    <ProjectReference Include="..\AutoRegister.DI.Tests.FixtureB\AutoRegister.DI.Tests.FixtureB.csproj" />
   </ItemGroup>
 
   <ItemGroup>
