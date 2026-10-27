@@ -40,3 +40,17 @@ Publishing is tag-driven through GitHub Actions (both workflows build, test, pac
 - `rc-vX.Y.Z` → `pre-release-publish.yml` publishes `X.Y.Z-rc.<run_number>`.
 
 The package version comes from the tag (`-p:Version=`), not from the csproj.
+
+## Backlog
+
+Issues and planned work live in `backlog/`: one markdown file per item in `backlog/items/` with YAML frontmatter, and `backlog/BACKLOG.md` as the generated index (`dotnet run tools/backlog-sync.cs`). IDs are `BL-XXXX` for non-bug items and `BUG-XXXX` for bugs. The item template with the allowed values is at the top of `backlog/BACKLOG.md`; `tools/backlog-lint.cs` enforces `id`, `title`, `type`, `area`, `priority`, `size` and `status`. Areas are `core`, `tests`, `example`, `packaging` and `docs`.
+
+- Change `status` with `dotnet run tools/backlog-set-field.cs <ID> status <value>`; it sets `completed` and rebuilds the index. Never hand-edit `status`, `completed` or the generated part of `BACKLOG.md`.
+- `breaking: true` marks an item that changes the public API or documented behaviour. The index groups them under "Next major version"; they should ship together in one major version.
+- `/backlog-add-bug` and `/backlog-add-item` file items; `/backlog-fix-bug <ID>` and `/backlog-process-item <ID>` work them; `/backlog-status` gives an overview. The shared gates (test baseline, build + test, marking done, IDs, branch and commit rules, public-surface rule) are in `.claude/prompts/backlog-gates.md`.
+- Commits that resolve an item use Conventional Commits scoped by area with the ID at the end: `fix(core): ... (BUG-0001)`, `feat(core): ... (BL-0002)`, `chore(packaging): ... (BL-0003)`.
+- Do not cite backlog IDs in code comments, XML docs or test names; the reference rots once the item closes. IDs belong in `backlog/`, commit messages and `TODO` markers.
+
+## Tools
+
+Single-file C# apps in `tools/`, run with `dotnet run tools/<name>.cs` (pass tool flags after `--`). See `tools/README.md` for the list.
